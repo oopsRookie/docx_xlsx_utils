@@ -61,5 +61,7 @@ new XlsxUtils.ExcelBuilder<List<StudentVO>>(getStudentOfGroupOne(),
         .addKV("extraKey", "extraVal")
         .build().genExcel();
 ```
+## Log
+- watermark support for word and excel（January 13,2021）
 ## License
 MIT LICENSE

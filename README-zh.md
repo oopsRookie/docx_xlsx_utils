@@ -60,5 +60,8 @@ new XlsxUtils.ExcelBuilder<List<StudentVO>>(getStudentOfGroupOne(),
         .addKV("extraKey", "extraVal")
         .build().genExcel();
 ```
+
+## 更新日志
+- word，excel支持水印添加（2021年1月13日）
 ## 开源协议
 MIT LICENSE
