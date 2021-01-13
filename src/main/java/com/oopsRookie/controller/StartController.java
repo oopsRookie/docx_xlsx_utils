@@ -1,18 +1,30 @@
 package com.oopsRookie.controller;
 
-import com.oopsRookie.model.vo.ClassExcelVO;
-import com.oopsRookie.model.vo.ClassWordVO;
-import com.oopsRookie.model.vo.GroupVO;
-import com.oopsRookie.model.vo.StudentVO;
+import com.oopsRookie.model.vo.*;
+import com.oopsRookie.util.excel.FontImage;
 import com.oopsRookie.util.excel.XlsxUtils;
 import com.oopsRookie.util.word.DocxUtils;
+import org.apache.poi.ooxml.POIXMLDocumentPart;
+import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
+import org.apache.poi.openxml4j.opc.PackagePartName;
+import org.apache.poi.openxml4j.opc.PackageRelationship;
+import org.apache.poi.openxml4j.opc.TargetMode;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.xssf.usermodel.XSSFRelation;
+import org.apache.poi.xssf.usermodel.XSSFSheet;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.support.ResourcePatternResolver;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 
+import javax.imageio.ImageIO;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
+import java.awt.image.BufferedImage;
+import java.io.*;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 @Controller
@@ -23,11 +35,27 @@ public class StartController {
             throws IOException {
 
         DocxUtils.genWord(getClassWordVO(), "/static/office-template/class.docx",
-                "班级名单class-member-list.docx", response);
+                "班级名单class-member-list", response);
+    }
+
+    @GetMapping("genWordBreak")
+    public void genWordBreak(HttpServletRequest request, HttpServletResponse response)
+            throws IOException {
+        DocxUtils.genWord(getWordBreakData(), "/static/office-template/break.docx",
+                "break测试", response);
+    }
+
+    @GetMapping("genWordWithWaterMark")
+    public void genWordWithWaterMark(HttpServletRequest request, HttpServletResponse response)
+            throws IOException {
+
+        DocxUtils.genWord(getClassWordVO(), "/static/office-template/class.docx",
+                "班级名单class-member-list", "WaterMark水印",response);
     }
 
     @GetMapping("genExcel")
-    public void genExcel(HttpServletRequest request, HttpServletResponse response) throws IOException {
+    public void genExcel(HttpServletRequest request, HttpServletResponse response) throws IOException, InvalidFormatException {
+
         new XlsxUtils.ExcelBuilder<List<StudentVO>>(getStudentOfGroupOne(),
                 "/static/office-template/class.xlsx",
                 "class-member-list",
@@ -45,8 +73,41 @@ public class StartController {
                 .build().genExcel();
     }
 
+    @GetMapping("genExcelWithWaterMark")
+    public void genExcelWithWaterMark(HttpServletRequest request, HttpServletResponse response) throws IOException, InvalidFormatException {
+
+        new XlsxUtils.ExcelBuilder<List<StudentVO>>(getStudentOfGroupOne(),
+                "/static/office-template/class.xlsx",
+                "class-member-list",
+                0, "group1", response)      //sheetName is not working.ㄟ( ▔, ▔ )ㄏ
+                .addKV("className", "className")
+                .addKV("classNumber", "classNumber")
+                .addKV("groupOneName", "group_1_Name")
+                .addKV("groupOneNumber", "group_1_Number")
+
+                .addSheet(1, "group2", getStudentOfGroupTwo())
+                .addKV("groupTwoName", "group_2_Name")
+                .addKV("groupTwoNumber", "group_2_Number")
+
+                .addKV("extraKey", "extraVal")
+                .withWaterMark("WaterMark水印")
+                .build().genExcel();
+    }
+
+
 
     /*-------------------------------------------- mock some data -------------------------------------*/
+
+    private BreakVO getWordBreakData() {
+        List<String> list = Arrays.asList("李XX", "李X", "李Xz", "李X", "李X",
+                "李XX", "李X", "李Xz", "李X", "李X");
+        BreakVO breakVO = new BreakVO();
+        for (String str :
+                list) {
+            breakVO.addItem(new BreakItemVO(str));
+        }
+        return breakVO;
+    }
 
     private List<StudentVO> getStudentOfGroupOne() {
 

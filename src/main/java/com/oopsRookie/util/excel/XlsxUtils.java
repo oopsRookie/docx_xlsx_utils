@@ -3,10 +3,20 @@ package com.oopsRookie.util.excel;
 import com.alibaba.excel.EasyExcel;
 import com.alibaba.excel.ExcelWriter;
 import com.alibaba.excel.write.metadata.WriteSheet;
+import org.apache.poi.ooxml.POIXMLDocumentPart;
+import org.apache.poi.openxml4j.opc.PackagePartName;
+import org.apache.poi.openxml4j.opc.PackageRelationship;
+import org.apache.poi.openxml4j.opc.TargetMode;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.xssf.usermodel.XSSFRelation;
+import org.apache.poi.xssf.usermodel.XSSFSheet;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.core.io.ClassPathResource;
 
+import javax.imageio.ImageIO;
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletResponse;
+import java.awt.image.BufferedImage;
 import java.io.*;
 import java.net.URLEncoder;
 import java.util.ArrayList;
@@ -22,6 +32,7 @@ public class XlsxUtils<E1> {
     private final List<String> sheetNames;
     private final HttpServletResponse response;
     private Map<String,Object> map;
+    private String watermark;
 
     private XlsxUtils(ExcelBuilder<E1> builder) {
         this.data = builder.data;
@@ -31,6 +42,7 @@ public class XlsxUtils<E1> {
         this.sheetNames = builder.sheetNames;
         this.response = builder.response;
         this.map = builder.map;
+        this.watermark = builder.watermark;
     }
 
 
@@ -54,7 +66,17 @@ public class XlsxUtils<E1> {
 
         ServletOutputStream fos = response.getOutputStream();        //get response outputStream
 
-        ExcelWriter writer = EasyExcel.write(fos).withTemplate(is).build();
+        ExcelWriter writer;
+        //根据是否添加水印决定inMemory是否开启，XSSFWorkbook（开启）与SXSSFWorkbook（不开启）
+        if(this.watermark != null && !"".equals(this.watermark)){
+            writer = EasyExcel.write(fos)
+                    .inMemory(true)
+                    .registerWriteHandler(new WaterMarkHandler(this.watermark))
+                    .withTemplate(is).build();
+        }else {
+            writer = EasyExcel.write(fos).withTemplate(is).build();
+        }
+
         //fill data to corresponding sheet
         for (int index = 0; index < this.sheetNos.size(); index++) {
             WriteSheet sheet = EasyExcel.writerSheet(this.sheetNos.get(index), this.sheetNames.get(index))
@@ -72,12 +94,13 @@ public class XlsxUtils<E1> {
     //builder
     public static class ExcelBuilder<E2> {
         private final List<E2> data;
-        private final InputStream is;
+        private InputStream is;
         private final String outputFileName;
         private final List<Integer> sheetNos;
         private final List<String> sheetNames;
         private final HttpServletResponse response;
         private Map<String,Object> map;
+        private String watermark;
 
         /**
          * make builder with template file path
@@ -203,6 +226,11 @@ public class XlsxUtils<E1> {
 
         public ExcelBuilder<E2> setMap(Map<String,Object> map){
             this.map = map;
+            return this;
+        }
+
+        public ExcelBuilder<E2> withWaterMark(String waterMark) {
+            this.watermark = waterMark;
             return this;
         }
 
