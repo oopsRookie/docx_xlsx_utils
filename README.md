@@ -4,6 +4,11 @@ docx_xlsx_utils is a code sample project for utility encapsulation of generating
 
 And this project is based on [poi-tl](https://github.com/Sayi/poi-tl) and [easyexcel](https://github.com/alibaba/easyexcel) .
 
+## Languages
+
+- English
+- [中文](https://github.com/oopsRookie/docx_xlsx_utils/blob/master/README-zh.md)
+
 ## Usage scenario
 
 - In Spring Web project, the requirements include backend generate word or excel, and send output stream back to client browser .
@@ -56,4 +61,5 @@ new XlsxUtils.ExcelBuilder<List<StudentVO>>(getStudentOfGroupOne(),
         .addKV("extraKey", "extraVal")
         .build().genExcel();
 ```
-
+## License
+MIT LICENSE

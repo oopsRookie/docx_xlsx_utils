@@ -4,6 +4,10 @@ docx_xlsx_utils 是一个通过java POJO与模板文件生成word（仅.docx）�
 
 此项目是基于 [poi-tl](https://github.com/Sayi/poi-tl) 和 [easyexcel](https://github.com/alibaba/easyexcel) 二次开发所成。
 
+## 语言
+- [English](https://github.com/oopsRookie/docx_xlsx_utils/blob/master/README.md)
+- 中文
+
 ## 应用场景
 
 - spring web 项目中，需要通过后端生成word或excel供给客户端下载。
@@ -56,4 +60,5 @@ new XlsxUtils.ExcelBuilder<List<StudentVO>>(getStudentOfGroupOne(),
         .addKV("extraKey", "extraVal")
         .build().genExcel();
 ```
-
+## 开源协议
+MIT LICENSE
